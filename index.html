@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlaySphere | Game Hub</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #6366f1;
+      --secondary: #4f46e5;
+      --dark: #1e293b;
+      --light: #f8fafc;
+      --gradient-start: #f0f4ff;
+      --gradient-end: #f8faff;
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* Header (Navbar) with blue tint */
+    .navbar {
+      background: rgba(59, 130, 246, 0.98);
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+      padding: 1rem 0;
+    }
+
+    .brand {
+      font-weight: 700;
+      color: var(--light);
+      font-size: 1.8rem;
+    }
+
+    /* Game card styling */
+    .game-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 0.25s ease;
+      border: 1px solid rgba(224, 231, 255, 0.6);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      cursor: pointer;
+      height: 100%;
+    }
+
+    .game-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.15);
+    }
+
+    .game-image {
+      height: 180px;
+      object-fit: cover;
+      width: 100%;
+      display: block;
+      border-bottom: 3px solid var(--primary);
+      border-radius: 12px 12px 0 0;
+    }
+
+    .game-title {
+      font-weight: 600;
+      color: var(--dark);
+      padding: 1rem;
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    /* Category button styles */
+    .category-btn {
+      background: rgba(224, 231, 255, 0.4);
+      border: 2px solid transparent;
+      border-radius: 8px;
+      padding: 0.6rem 1.2rem;
+      margin: 0.4rem;
+      font-weight: 600;
+      color: var(--dark);
+      transition: all 0.2s ease;
+    }
+
+    .category-btn.active {
+      background: var(--primary);
+      color: white !important;
+      border-color: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+    }
+
+    /* Game view container */
+    .game-view-container {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+      margin-top: 2px;
+    }
+
+    .description-box {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .recommended-section {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-top: 2rem;
+    }
+
+    /* Game view header for Back button */
+    .game-view-header {
+      position: absolute;
+      top: 80px; /* Adjust if your nav bar is taller */
+      right: 20px;
+      z-index: 10;
+    }
+
+    /* Game view footer for Fullscreen button */
+    .game-view-footer {
+      position: absolute;
+      bottom: 20px;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      z-index: 10;
+    }
+
+   /* --- Similar Games Section Adjustments --- */
+#sameCategoryRecommendations .game-card {
+  max-width: 300px;   /* Thinner game cards */
+  width: 100%;
+  margin: 0 auto;
+  /* Remove the purple outline on the left and bottom by eliminating any border property here */
+  border: none; 
+}
+
+/* Optionally, if the inner game-card has an image border that needs removal, adjust that too: */
+#sameCategoryRecommendations .game-image {
+  border: none; /* Removes the primary colored border */
+}
+
+/* --- Back and Fullscreen Buttons (Using the Previous Code) --- */
+.game-controls {
+  position: fixed;
+  z-index: 1000;
+}
+
+.game-controls {
+  text-align: right;
+  margin-bottom: 1rem; /* Space between buttons and the game box */
+}
+
+#backBtn {
+    margin: 10px;
+            top: 20px;
+            right: 20px;
+            background: #ef4444;
+            padding: 8px 16px;
+            bottom: 10px;
+        }
+
+        #fullscreenBtn {
+            margin: 10px;
+            top: 20px;
+            bottom: 10px;
+            right: 20px;
+            background: #3b82f6;
+            padding: 8px 16px;
+        }
+
+    /* Enhanced hover effect */
+    .game-card:hover {
+      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.25);
+    }
+    
+    /* NEW: Game frame scaling styles */
+    .game-frame-wrapper {
+      position: relative;
+      width: 100%;
+      height: 60vh;
+      overflow: hidden;
+      border-radius: 12px;
+      background: #000;
+    }
+    
+    #gameFrame {
+      position: absolute;
+      border: none;
+      transform-origin: top left;
+    }
+    
+    .scale-controls {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      z-index: 100;
+      display: flex;
+      gap: 5px;
+    }
+    
+    .scale-btn {
+      background: rgba(0,0,0,0.5);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container">
+      <a class="navbar-brand brand" href="#">
+        🎮 PlaySphere
+      </a>
+      <div class="d-flex">
+        <input type="search" 
+               class="form-control search-box" 
+               placeholder="🔍 Search games..."
+               style="width: 300px">
+      </div>
+    </div>
+  </nav>
+
+  <!-- Category Navigation -->
+  <nav class="container py-2" id="categoryNav">
+    <div class="d-flex flex-wrap">
+      <button class="category-btn active" data-filter="all">All Games</button>
+      <button class="category-btn" data-filter="action">Action 🚀</button>
+      <button class="category-btn" data-filter="puzzle">Puzzle 🧩</button>
+      <button class="category-btn" data-filter="arcade">Arcade 🕹️</button>
+      <button class="category-btn" data-filter="sports">Sports ⚽</button>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="container" style="position: relative;">
+
+    <!-- Game View -->
+    <div id="gameView" style="display: none; position: relative; min-height: 80vh;">
+        <button id="backBtn" class="btn text-white" onclick="closeGame()">← Back</button>
+        <button id="fullscreenBtn" class="btn text-white" onclick="toggleFullScreen()">⛶ Fullscreen</button>
+
+      <!-- Game View Content -->
+      <div class="game-view-container">
+        <!-- Left Column -->
+        <div>
+          <div class="game-frame-wrapper">
+            <div class="scale-controls">
+              <button class="scale-btn" onclick="scaleGame('fit')">Fit</button>
+              <button class="scale-btn" onclick="scaleGame('fill')">Fill</button>
+              <button class="scale-btn" onclick="scaleGame(1)">100%</button>
+            </div>
+            <iframe id="gameFrame" sandbox="allow-scripts allow-same-origin" allowfullscreen></iframe>
+          </div>
+          
+          <div class="description-box">
+            <h5>About This Game</h5>
+            <p id="gameDescription" class="text-muted">
+              <!-- Description populated here -->
+            </p>
+          </div>
+
+          <!-- Bottom Recommendations -->
+          <div class="recommended-section">
+            <h5>More Games to Explore 🎲</h5>
+            <div class="row g-3" id="randomRecommendations"></div>
+          </div>
+        </div>
+
+        <!-- Right Column - Similar Games -->
+        <div class="recommended-section">
+          <h5>Similar Games 🎯</h5>
+          <div id="sameCategoryRecommendations"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Game Grid -->
+       <!-- Main Game Grid -->
+       <div class="row g-4 mt-4" id="gameGrid">
+        <div class="col-xl-3 col-lg-4 col-md-6" data-category="arcade">
+          <div class="game-card" 
+               data-game="https://scratch.mit.edu/projects/60917032/embed"
+               data-description="Appel is a fun platformer game with 9 levels developed by Griffpatch. Use A and D or left and right arrow keys to move, up arrow, W or space to jump, and down arrow and S to crouch. In Appel, you can stick to walls with the suction cup on your head.">
+            <img src="https://uploads.scratch.mit.edu/get_image/project/60917032_480x360.png" 
+                 class="game-image" 
+                 alt="Appel Game">
+            <h5 class="game-title">Appel</h5>
+          </div>
+        </div>
+  
+        <div class="col-xl-3 col-lg-4 col-md-6" data-category="arcade">
+          <div class="game-card" 
+               data-game="https://scratch.mit.edu/projects/389464290/embed"
+               data-description="Getting over it is a fun physics based platformer.">
+            <img src="https://uploads.scratch.mit.edu/get_image/project/389464290_480x360.png" 
+                 class="game-image" 
+                 alt="Getting Over It (Scratch Edition)">
+            <h5 class="game-title">Getting Over It (Scratch Edition)</h5>
+          </div>
+        </div>
+  
+        <div class="col-xl-3 col-lg-4 col-md-6" data-category="puzzle">
+          <div class="game-card" 
+               data-game="https://cdn.htmlgames.com/CarParkSort/"
+               data-description="Car Sort is a difficult car sorting game. Click a car to remove it from its parking spot and click elsewhere to give it a new location! Match all the cars in one row to win!">
+            <img src="https://www.htmlgames.com/uploaded/game/thumb/carparksort300200.webp" 
+                 class="game-image" 
+                 alt="Car Park Sort">
+            <h5 class="game-title">Car Sort</h5>
+          </div>
+        </div>
+  
+        <div class="col-xl-3 col-lg-4 col-md-6" data-category="arcade">
+          <div class="game-card" 
+               data-game="https://www.onlinegames.io/games/2023/q2/capybara-clicker-pro/index.html"
+               data-description="Capybara clicker is a fun laid back clicker game where you click your capybara to make more capybaras!">
+            <img src="https://www.onlinegames.io/media/posts/554/responsive/Capybara-Clicker-Pro-xs.jpg" 
+                 class="game-image" 
+                 alt="Capybara Clicker">
+            <h5 class="game-title">Capybara Clicker</h5>
+          </div>
+        </div>
+  
+        <div class="col-xl-3 col-lg-4 col-md-6" data-category="arcade">
+          <div class="game-card"
+               data-game="https://SoBloxsy.github.io/idle-breakout"
+               data-description="Idle breakout is a game in which you must break all the bricks in each level, either by clicking on them or placing balls bouncing balls to break them for you.">
+            <img src="https://www.onlinegames.io/media/posts/692/responsive/Play-Idle-Breakout-xs.jpg" 
+                 class="game-image" 
+                 alt="Idle Brick Breaker">
+            <h5 class="game-title">Idle Breakout</h5>
+          </div>
+        </div>
+  
+        <div class="col-xl-3 col-lg-4 col-md-6" data-category="sports">
+          <div class="game-card" 
+               data-game="https://soccer-random.github.io/a8/soccer-random/"
+               data-description="Soccer random is as simple as it gets! Press W or the up arrow to jump in the direction you are facing and try to score a goal!">
+            <img src="https://images.crazygames.com/games/soccer-random/cover-1592583531704.png?auto=format,compress&q=75&cs=strip&ch=DPR&w=1200&h=630&fit=crop" 
+                 class="game-image" 
+                 alt="Soccer Random">
+            <h5 class="game-title">Soccer Random</h5>
+          </div>
+        </div>
+  
+        <div class="col-xl-3 col-lg-4 col-md-6" data-category="action">
+          <div class="game-card" 
+               data-game="https://abinbins.github.io/a77/1v1-lol-3/"
+               data-description="1v1 lol, the best game to play against your friends, practice alone or challenge yourself to become a pro!">
+            <img src="https://w8.snokido.com/img/large/1v1-lol.jpg?010121" 
+                 class="game-image" 
+                 alt="1v1.Lol">
+            <h5 class="game-title">1v1.LOL</h5>
+          </div>
+        </div>
+  
+        <div class="col-xl-3 col-lg-4 col-md-6" data-category="sports">
+          <div class="game-card" 
+               data-game="https://soccer-random.github.io/a77/drive-mad"
+               data-description="Drive mad is a game where you should drive as crazy as you want! Get to the finsish faster and faster! Oh but, don't flip over">
+            <img src="https://fireboy-andwatergirl.io/data/image/game/drive-mad.png" 
+                 class="game-image" 
+                 alt="Drive Mad">
+            <h5 class="game-title">Drive Mad</h5>
+          </div>
+        </div>
+      </div>
+    </main>
+
+
+
+
+  <script>
+    // Game Controls
+    function toggleFullScreen() {
+      const elem = document.getElementById('gameFrame');
+      if (!document.fullscreenElement) {
+        elem.requestFullscreen().catch(err => {
+          alert(`Error entering fullscreen: ${err.message}`);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    function closeGame() {
+      document.getElementById('gameView').style.display = 'none';
+      document.getElementById('gameGrid').style.display = 'grid';
+      document.getElementById('categoryNav').style.display = 'flex';
+      document.getElementById('gameFrame').src = '';
+      document.exitFullscreen();
+    }
+
+    // Game Scaling Functionality
+    function scaleGame(mode) {
+      const frame = document.getElementById('gameFrame');
+      const wrapper = frame.parentElement;
+      const wrapperWidth = wrapper.offsetWidth;
+      const wrapperHeight = wrapper.offsetHeight;
+      
+      // Default game dimensions (adjust per game if needed)
+      const gameWidth = 1100;
+      const gameHeight = 800;
+      
+      let scale = 1;
+      
+      if (mode === 'fit') {
+        // Scale to fit while maintaining aspect ratio
+        const widthRatio = wrapperWidth / gameWidth;
+        const heightRatio = wrapperHeight / gameHeight;
+        scale = Math.min(widthRatio, heightRatio);
+      } else if (mode === 'fill') {
+        // Scale to fill while maintaining aspect ratio
+        const widthRatio = wrapperWidth / gameWidth;
+        const heightRatio = wrapperHeight / gameHeight;
+        scale = Math.max(widthRatio, heightRatio);
+      } else {
+        // Specific scale value
+        scale = mode;
+      }
+      
+      // Apply the scaling
+      frame.style.width = `${gameWidth}px`;
+      frame.style.height = `${gameHeight}px`;
+      frame.style.transform = `scale(${scale})`;
+      
+      // Center the game in the wrapper
+      const scaledWidth = gameWidth * scale;
+      const scaledHeight = gameHeight * scale;
+      frame.style.left = `${(wrapperWidth - scaledWidth) / 2}px`;
+      frame.style.top = `${(wrapperHeight - scaledHeight) / 2}px`;
+    }
+    
+    // Modified game loading function
+    function loadGame(url) {
+      const frame = document.getElementById('gameFrame');
+      frame.onload = function() {
+        // Wait a moment for the game to initialize, then scale it
+        setTimeout(() => scaleGame('fit'), 500);
+      };
+      frame.src = url;
+    }
+
+    // Game Selection
+    document.querySelectorAll('.game-card').forEach(card => {
+      card.addEventListener('click', function() {
+        const gameUrl = this.dataset.game;
+        const parent = this.closest('[data-category]');
+        const category = parent ? parent.dataset.category : '';
+        const description = this.dataset.description;
+
+        document.getElementById('gameView').style.display = 'block';
+        document.getElementById('gameGrid').style.display = 'none';
+        document.getElementById('categoryNav').style.display = 'none';
+        document.getElementById('gameDescription').textContent = description;
+
+        loadGame(gameUrl); // Use the new loadGame function
+        populateRecommendations(category);
+      });
+    });
+
+    // Recommendation System
+    function populateRecommendations(currentCategory) {
+      const elements = Array.from(document.querySelectorAll(`[data-category="${currentCategory}"]`));
+      populateSection('#sameCategoryRecommendations', elements, true);
+
+      const categories = ['action', 'puzzle', 'arcade', 'sports'].filter(c => c !== currentCategory);
+      const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+      const randomElements = Array.from(document.querySelectorAll(`[data-category="${randomCategory}"]`));
+      populateSection('#randomRecommendations', randomElements, false);
+    }
+
+    function populateSection(selector, elements, onlyCard) {
+      const container = document.querySelector(selector);
+      container.innerHTML = '';
+      elements.forEach(el => {
+        let clone;
+        if (onlyCard) {
+          clone = el.querySelector('.game-card').cloneNode(true);
+        } else {
+          clone = el.cloneNode(true);
+        }
+        clone.style.transform = 'none';
+        clone.style.boxShadow = 'none';
+        container.appendChild(clone);
+      });
+    }
+
+    // Category Filtering
+    document.querySelectorAll('.category-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        
+        const filter = this.dataset.filter;
+        document.querySelectorAll('[data-category]').forEach(game => {
+          game.style.display = (filter === 'all' || game.dataset.category === filter) ? 'block' : 'none';
+        });
+      });
+    });
+
+    document.querySelector('.search-box').addEventListener('input', function() {
+      const query = this.value.toLowerCase();
+      document.querySelectorAll('#gameGrid > div').forEach(cell => {
+        const card = cell.querySelector('.game-card');
+        const title = card.querySelector('.game-title').textContent.toLowerCase();
+        cell.style.display = title.includes(query) ? '' : 'none';
+      });
+    });
+  </script>
+</body>
+</html>
